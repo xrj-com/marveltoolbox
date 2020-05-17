@@ -127,3 +127,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# test
+chkpts/
+logs/
+demos/chkpts/
+demos/logs/
+demos/temp/
+test/chkpts/
+test/logs/
+test/temp/
+docker/authorized_keys
+docker/Dockerfile.temp
+
+.DS_Store
