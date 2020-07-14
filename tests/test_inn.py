@@ -1,6 +1,6 @@
 import sys
 sys.path.append('..')
-import marvaltoolbox as mt
+import mytoolbox as mt
 import torch
 
 if __name__ == '__main__':

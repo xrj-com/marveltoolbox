@@ -40,7 +40,8 @@ RUN apt-get update && apt-get install -y --allow-downgrades --allow-change-held-
         libibverbs1 \
         ibverbs-providers \
         openssh-server \
-        openssh-client && \
+        openssh-client \
+        screen && \
         rm -rf /var/lib/apt/lists/*
 
 # install python & pytorch
@@ -76,7 +77,8 @@ RUN ldconfig /usr/local/cuda/targets/x86_64-linux/lib/stubs && \
     ldconfig
 
 ## ssh config
-ARG RSA_PUB="xxxxxxxxx"
+ARG RSA_PUB="ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCx11vMvwr+9nIUqXewbyDFmKtzD6eLGugUgVi+0v0zvClhTTOUWNG8JuQz5qbeetwUY6zErwH1JJhZK6PW1SYKpnodIXKStqAUt+QHl4q3g3b+rKSBhL8gj+6fNRi6MToDGVYlmb+PPXe71p6g1zm2m6qAw2Ey6CQ1r84EFJJNQHoPQbSiPatE54wPl9a5K/eEQIuvZbKH0HkMQmn65Jw9rYO6zFbyxCfkSBUsNpx/U19vyWR0XpQSUC27W35DFm2mTrkSfU7dbBgekwBGj+MylSzYXP+iAF/GKw235BeqQcOdzJsgVGvO30Gt2kpQdPnY3WAcFL0YSYzhH6I4aLXUIBHKLD0fPtt91I0BwfG832GMnAxXCFZzZHZFT72mXsHPSEkqWNsu7+jwKSIoyt75LpWcDjHWp4dnkU1BFgkkg1aN70X2Y+YWsUcFsHY36fbvxUb7t9HSRtN0dkB8A/dLsJGarE2BJQhY60rnIMsk6e7CB3QvWh9ID7gHmyWRCY94qgpwZ37bDyVKQ+tS1/uQm2mZt7F5yTK1dSJCvGq+mJ5/YaQ+359FTBWLUP7bufUxUYwJ04a7Alrvfz8tGs+sY9ykfyKBFlXjPLrMRbBBdUG+AXBpIgMZQZShXE+bgidPmX4Qg8EVan+JexBxx3ylQNAaGWxFwPpsBF06gToW9Q== renjie_xie@seu.edu.cn"
+
 RUN mkdir -p /var/run/sshd && mkdir -p /root/.ssh && \
     sed -ri "s/session required pam_loginuid.so/#session required pam_loginuid.so/g" /etc/pam.d/sshd && \
     cat $RSA_PUB > /root/.ssh/authorized_keys

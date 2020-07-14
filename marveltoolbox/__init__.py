@@ -7,5 +7,7 @@ from . import utils
 from . import nn
 from . import inn
 from . import datasets
+from . import attacks
+from . import defenses
 from .trainer import BaseTrainer, HvdTrainer
 from .configs import BaseConfs

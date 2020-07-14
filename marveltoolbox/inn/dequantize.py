@@ -35,4 +35,4 @@ class DequantizeLayer(nn.Module):
         return x.log() - (1 - x).log()
 
     def inverse(self, x):
-        return F.sigmoid(x)
+        return torch.sigmoid(x)

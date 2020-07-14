@@ -8,7 +8,7 @@ import numpy as np
 import os
 import logging
 import traceback
-from marvaltoolbox import utils
+from marveltoolbox import utils
 import shutil
 
 
@@ -113,6 +113,7 @@ class BaseTrainer():
             if self.logger is not None:
                 self.logger.info(print_str)
         del self.logger
+        self.logger = None
 
     def run(self, *args, **kwargs):
         try:
@@ -180,7 +181,7 @@ class HvdTrainer(BaseTrainer):
             # print('batchsize = 1/{} * batchsize'.format(hvd.local_size()))
 
     def hvd_preprocessing(self, op=hvd.Adasum):
-        kwargs = {'num_workers': 1, 'pin_memory': True} if torch.cuda.is_available() else {}
+        kwargs = {'num_workers': 1, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
 
         for key in self.datasets.keys():
             self.samplers[key] = torch.utils.data.distributed.DistributedSampler(
@@ -190,13 +191,13 @@ class HvdTrainer(BaseTrainer):
 
         self.hvd_broadcast()
 
-        for key in self.models.keys():
+        for key in self.optims.keys():
             self.optims[key] = hvd.DistributedOptimizer(self.optims[key],
                                          named_parameters=self.models[key].named_parameters(),
                                          op=op)
 
     def hvd_broadcast(self):
-        for key in self.models.keys():
+        for key in self.optims.keys():
             hvd.broadcast_parameters(self.models[key].state_dict(), root_rank=0)
             hvd.broadcast_optimizer_state(self.optims[key], root_rank=0)
 
@@ -233,5 +234,6 @@ class HvdTrainer(BaseTrainer):
                 if self.logger is not None:
                     self.logger.info(print_str)
             del self.logger
+            self.logger = None
 
 

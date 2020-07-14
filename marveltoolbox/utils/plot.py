@@ -14,6 +14,7 @@ def plot_tensor(tensor, nrow=8, normalize=True, figsize=(10,10), filename=None):
     plt.show()
     if not filename is None:
         plt.savefig(filename)
+        plt.close()
 
 def plot_eps_acc(distort_dict, title='test', sample_num=80, begin=0.0, stop=4.0):
     figure = plt.figure()
@@ -57,3 +58,4 @@ def plot_data_dict(data_dict, title='test', xlabel='x', ylabel='y', filename=Non
     plt.legend(legend_list)
     if not filename is None:
         plt.savefig(filename)
+        plt.close()
