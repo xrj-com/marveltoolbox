@@ -73,6 +73,12 @@ class BaseTrainer():
         print('Log file save at: ', log_file)
         hfile = logging.FileHandler(log_file)
         self.logger.addHandler(hfile)
+
+    def preprocessing(self):
+        kwargs = {'num_workers': 1, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
+        for key in self.datasets.keys():
+            self.dataloaders[key] = torch.utils.data.DataLoader(
+                self.datasets[key], batch_size=self.batch_size, shuffle=True, **kwargs)
         
     def train(self, epoch):
         return 0.0
@@ -86,12 +92,15 @@ class BaseTrainer():
     def print_logs(self, epoch, step):
         print_str = 'Epoch/Iter:{:0>3d}/{:0>4d} '.format(epoch, step)
         for key, value in self.logs.items():
-            print_str += '{}:{:4f} '.format(key, value)
+            if type(value) == str:
+                print_str += '{}:{} '.format(key, value)
+            else:
+                print_str += '{}:{:4f} '.format(key, value)
         print(print_str)
         if self.logger is not None:
             self.logger.info(print_str)
 
-    def main(self, load_best=False, retrain=False):
+    def main(self, load_best=False, retrain=False, is_del_loger=True):
         utils.set_seed(self.seed)
         self.set_logger()
         if not retrain:
@@ -112,8 +121,10 @@ class BaseTrainer():
             print(print_str)
             if self.logger is not None:
                 self.logger.info(print_str)
-        del self.logger
-        self.logger = None
+                
+        if is_del_loger:
+            del self.logger
+            self.logger = None
 
     def run(self, *args, **kwargs):
         try:
@@ -206,7 +217,7 @@ class HvdTrainer(BaseTrainer):
         avg_tensor = hvd.allreduce(tensor, name=name)
         return avg_tensor.item()
 
-    def main(self, load_best=False, retrain=False):
+    def main(self, load_best=False, retrain=False, is_del_loger=True):
         utils.set_seed(hvd.rank())
         if not retrain:
             self.load()
@@ -216,6 +227,8 @@ class HvdTrainer(BaseTrainer):
             timer = utils.Timer(self.epochs-self.start_epoch, self.logger)
             timer.init()
         for epoch in range(self.start_epoch, self.epochs):
+            for key in self.datasets.keys():
+                self.samplers[key].set_epoch(epoch)
             loss = self.train(epoch)
             is_best = self.eval(epoch)
             self.start_epoch += 1
@@ -233,7 +246,9 @@ class HvdTrainer(BaseTrainer):
                 print(print_str)
                 if self.logger is not None:
                     self.logger.info(print_str)
-            del self.logger
-            self.logger = None
+
+            if is_del_loger:
+                del self.logger
+                self.logger = None
 
 
