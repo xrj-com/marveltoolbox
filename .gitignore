@@ -141,3 +141,4 @@ docker/authorized_keys
 docker/Dockerfile.temp
 
 .DS_Store
+.vscode

@@ -1,6 +1,6 @@
 from torchvision.datasets import FashionMNIST
-from .configs import DATASET
 import torch.utils.data as data
+import os
 from PIL import Image
 from typing import Dict, Tuple
 import collections
@@ -20,8 +20,9 @@ def get_suffle_index(data_len, seed=0):
 
 
 class MNIST_SELECT(FashionMNIST):
-    def __init__(self, label_list=None, train=True, transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
-        super().__init__(DATASET.FASHION_MNIST_ROOT, train, transform, target_transform, download)
+    def __init__(self, data_root, label_list=None, train=True, transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
+        data_path = os.path.join(data_root, 'FashionMNIST')
+        super().__init__(data_path, train, transform, target_transform, download)
         self.label_list = label_list
         self.class_num = 10
         self.is_target_attack = is_target_attack
@@ -125,7 +126,7 @@ class MNIST_SELECT(FashionMNIST):
 
 def load_fmnist(
     downsample_pct: float = 0.5, train_pct: float = 0.8, batch_size: int = 50, img_size: int = 28, label_list: list = None, 
-is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader]:
+is_norm=False, data_root='./DATASET') -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Load MNIST dataset (download if necessary) and split data into training,
         validation, and test sets.
@@ -204,7 +205,7 @@ is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader]:
     return train_loader, valid_loader, test_loader, targeted_test_loader
 
 
-def load_fmnist_pairs(
+def load_fmnist_pairs(data_root, 
     downsample_pct: float = 0.5, batch_size: int = 50, img_size: int = 28, label_list: list = None
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
@@ -223,7 +224,7 @@ def load_fmnist_pairs(
         [transforms.Resize(img_size),transforms.ToTensor()]
     ) 
 
-    test_set_all = MNIST_SELECT(
+    test_set_all = MNIST_SELECT(data_root, 
         label_list=label_list, train=False, download=True, transform=transform, is_pair=True
     )
     subset_index = get_suffle_index(len(test_set_all))

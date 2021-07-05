@@ -7,6 +7,13 @@ import torchvision as tv
 import matplotlib.pyplot as plt
 from torch.distributions import MultivariateNormal
 
+def params_count(model):
+    """
+    Compute the number of parameters.
+    Args:
+        model (model): model to count the number of parameters.
+    """
+    return np.sum([p.numel() for p in model.parameters()]).item()
 
 def separate_bn_paras(modules):
     if not isinstance(modules, list):

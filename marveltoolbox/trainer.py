@@ -1,7 +1,6 @@
 import torch 
 import torch.nn as nn
 import torch.nn.functional as F
-import horovod.torch as hvd
 import torchvision as tv
 from torchvision.utils import save_image
 import numpy as np
@@ -169,86 +168,4 @@ class BaseTrainer():
             print(print_str)
             if self.logger is not None:
                 self.logger.info(print_str)
-
-
-class HvdTrainer(BaseTrainer):
-    def __init__(self, confs):
-        super().__init__(confs)
-        self.samplers = {}
-        self.lr_scaler = 1
-        hvd.init()
-        torch.set_num_threads(1)
-        torch.cuda.set_device(hvd.local_rank())
-        self.device = torch.device(
-            "cuda:{}".format(hvd.local_rank()))
-        self.hvd_param_scaling()
-
-    
-    def hvd_param_scaling(self):
-        if hvd.nccl_built():
-            self.lr_scaler = hvd.local_size()
-            print('Rescale lr = {} * lr'.format(self.lr_scaler))
-            # self.batch_size = int(self.batch_size / hvd.local_size())
-            # print('batchsize = 1/{} * batchsize'.format(hvd.local_size()))
-
-    def hvd_preprocessing(self, op=hvd.Adasum):
-        kwargs = {'num_workers': 1, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
-
-        for key in self.datasets.keys():
-            self.samplers[key] = torch.utils.data.distributed.DistributedSampler(
-                self.datasets[key], num_replicas=hvd.size(), rank=hvd.rank())
-            self.dataloaders[key] = torch.utils.data.DataLoader(
-                self.datasets[key], batch_size=self.batch_size, sampler=self.samplers[key], **kwargs)
-
-        self.hvd_broadcast()
-
-        for key in self.optims.keys():
-            self.optims[key] = hvd.DistributedOptimizer(self.optims[key],
-                                         named_parameters=self.models[key].named_parameters(),
-                                         op=op)
-
-    def hvd_broadcast(self):
-        for key in self.optims.keys():
-            hvd.broadcast_parameters(self.models[key].state_dict(), root_rank=0)
-            hvd.broadcast_optimizer_state(self.optims[key], root_rank=0)
-
-    def metric_average(self, val, name):
-        tensor = torch.tensor(val)
-        avg_tensor = hvd.allreduce(tensor, name=name)
-        return avg_tensor.item()
-
-    def main(self, load_best=False, retrain=False, is_del_loger=True):
-        utils.set_seed(hvd.rank())
-        if not retrain:
-            self.load()
-
-        if hvd.rank() == 0:
-            self.set_logger()
-            timer = utils.Timer(self.epochs-self.start_epoch, self.logger)
-            timer.init()
-        for epoch in range(self.start_epoch, self.epochs):
-            for key in self.datasets.keys():
-                self.samplers[key].set_epoch(epoch)
-            loss = self.train(epoch)
-            is_best = self.eval(epoch)
-            self.start_epoch += 1
-            self.scheduler_step()
-
-            if hvd.rank() == 0:
-                timer.step()
-                self.save(is_best=is_best)
-
-        if hvd.rank() == 0:
-            if load_best:
-                self.load(is_best=True)
-                self.hvd_broadcast()
-                print_str = 'Best epoch: {:0>3d} \n'.format(self.start_epoch)
-                print(print_str)
-                if self.logger is not None:
-                    self.logger.info(print_str)
-
-            if is_del_loger:
-                del self.logger
-                self.logger = None
-
 

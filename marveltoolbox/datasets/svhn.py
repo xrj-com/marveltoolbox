@@ -1,5 +1,4 @@
 from torchvision.datasets import SVHN
-from .configs import DATASET
 import torch.utils.data as data
 from typing import Dict, Tuple
 from PIL import Image
@@ -20,8 +19,9 @@ def get_suffle_index(data_len, seed=0):
     return subset_index
 
 class SVHN_SELECT(SVHN):
-    def __init__(self, label_list=None, split='train', transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
-        super().__init__(DATASET.SVHN_ROOT, split, transform, target_transform, download)
+    def __init__(self, data_root, label_list=None, split='train', transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
+        data_path = os.path.join(data_root, 'SVHN')
+        super().__init__(data_path, split, transform, target_transform, download)
         self.label_list = label_list
         self.class_num = 10
         self.is_target_attack = is_target_attack
@@ -208,7 +208,7 @@ def load_svhn(
     # return train_loader, valid_loader, test_loader
 
 def load_svhn_pairs(
-    downsample_pct: float = 0.5, batch_size: int = 50, img_size: int = 32, label_list: list = None
+    data_root, downsample_pct: float = 0.5, batch_size: int = 50, img_size: int = 32, label_list: list = None
 ) -> Tuple[DataLoader]:
     """
     Load MNIST dataset (download if necessary) and split data into training,
@@ -226,7 +226,7 @@ def load_svhn_pairs(
         [transforms.Resize(img_size), transforms.ToTensor(),transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
     ) 
 
-    test_set_all = SVHN_SELECT(
+    test_set_all = SVHN_SELECT(data_root,
         label_list=label_list, split='test', download=True, transform=transform, is_pair=True
     )
     subset_index = get_suffle_index(len(test_set_all))

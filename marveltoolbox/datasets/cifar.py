@@ -1,5 +1,3 @@
-from .configs import DATASET
-
 from PIL import Image
 from typing import Dict, Tuple
 import collections
@@ -10,7 +8,7 @@ from torch.utils.data import DataLoader
 import numpy as np
 import random
 from random import shuffle
-
+import os
 
 class saturation:
     def __init__(self, p=265):
@@ -28,8 +26,9 @@ def get_suffle_index(data_len, seed=0):
     return subset_index
 
 class CIFAR_SELECT(torchvision.datasets.CIFAR10):
-    def __init__(self, label_list=None, train=True, transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
-        super().__init__(DATASET.CIFAR10_ROOT, train, transform, target_transform, download)
+    def __init__(self, data_root, label_list=None, train=True, transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
+        data_path = os.path.join(data_root, 'CIFAR10')
+        super().__init__(data_path, train, transform, target_transform, download)
         self.label_list = label_list
         self.class_num = 10
         self.is_target_attack = is_target_attack
@@ -130,7 +129,7 @@ class CIFAR_SELECT(torchvision.datasets.CIFAR10):
         return img, target
 
 
-def load_cifar10(
+def load_cifar10(data_root, 
     downsample_pct: float = 0.5, train_pct: float = 0.8, batch_size: int = 50, img_size: int = 32, label_list: list = None, is_norm=False
 ) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
     """
@@ -188,7 +187,7 @@ def load_cifar10(
     # Load training set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
 
-    train_valid_set = CIFAR_SELECT(label_list, train=True, transform=train_transform, download=True)
+    train_valid_set = CIFAR_SELECT(data_root, label_list, train=True, transform=train_transform, download=True)
     # train_set = torch.utils.data.Subset(CIFAR_SELECT(label_list, train=True, transform=train_transform, download=True), list(range(45000)))
     # valid_set = torch.utils.data.Subset(CIFAR_SELECT(label_list, train=True, transform=eval_transform, download=True),
     #                     list(range(45000, 50000)))
@@ -229,7 +228,7 @@ def load_cifar10(
 
     # Load test set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
-    test_set_all = CIFAR_SELECT(
+    test_set_all = CIFAR_SELECT(data_root,
         label_list=label_list, train=False, download=True, transform=eval_transform
     )
     subset_index = get_suffle_index(len(test_set_all))
@@ -240,7 +239,7 @@ def load_cifar10(
     )
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=2)
 
-    targeted_attack_test_set_all = CIFAR_SELECT(
+    targeted_attack_test_set_all = CIFAR_SELECT(data_root,
         label_list=label_list, train=False, download=True, transform=eval_transform, is_target_attack=False
     )
     subset_index = get_suffle_index(len(targeted_attack_test_set_all))
@@ -254,7 +253,7 @@ def load_cifar10(
     return train_loader, valid_loader, test_loader, targeted_test_loader
 
 
-def load_cifar100(
+def load_cifar100(data_root,
     downsample_pct: float = 0.5, train_pct: float = 0.8, batch_size: int = 50
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
@@ -269,6 +268,7 @@ def load_cifar100(
         DataLoader: validation data
         DataLoader: test data
     """
+    data_path = os.path.join(data_root, 'CIFAR100')
     # Specify transforms
     # pyre-fixme[16]: Module `transforms` has no attribute `Compose`.
     # transform = transforms.Compose(
@@ -281,7 +281,7 @@ def load_cifar100(
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
 
     train_valid_set = torchvision.datasets.CIFAR100(
-        root=DATASET.CIFAR100_ROOT, train=True, download=True, transform=transform
+        root=data_path, train=True, download=True, transform=transform
     )
 
     # Partition into training/validation
@@ -305,7 +305,7 @@ def load_cifar100(
     # Load test set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
     test_set_all = torchvision.datasets.CIFAR100(
-        root=DATASET.CIFAR100_ROOT, train=False, download=True, transform=transform
+        root=data_path, train=False, download=True, transform=transform
     )
     downsampled_num_test_examples = int(downsample_pct * len(test_set_all))
     test_set, _ = torch.utils.data.random_split(

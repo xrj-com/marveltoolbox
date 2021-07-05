@@ -1,5 +1,4 @@
 from torchvision.datasets import MNIST
-from .configs import DATASET
 import torch.utils.data as data
 from PIL import Image
 from typing import Dict, Tuple
@@ -10,6 +9,7 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
 import numpy as np
 import random
+import os
 from random import shuffle
 
 def get_suffle_index(data_len, seed=0):
@@ -19,8 +19,9 @@ def get_suffle_index(data_len, seed=0):
     return subset_index
 
 class MNIST_SELECT(MNIST):
-    def __init__(self, label_list=None, train=True, transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
-        super().__init__(DATASET.MNIST_ROOT, train, transform, target_transform, download)
+    def __init__(self, data_root, label_list=None, train=True, transform=None, target_transform=None, download=False, is_target_attack=False, is_pair=False):
+        data_path = os.path.join(data_root, 'MNIST')
+        super().__init__(data_path, train, transform, target_transform, download)
         self.label_list = label_list
         self.class_num = 10
         self.is_target_attack = is_target_attack
@@ -206,7 +207,7 @@ is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
 
 
 def load_mnist_pairs(
-    downsample_pct: float = 0.5, batch_size: int = 50, img_size: int = 28, label_list: list = None
+    data_root,  downsample_pct: float = 0.5, batch_size: int = 50, img_size: int = 28, label_list: list = None
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Load MNIST dataset (download if necessary) and split data into training,
@@ -224,7 +225,7 @@ def load_mnist_pairs(
         [transforms.Resize(img_size),transforms.ToTensor()]
     ) 
 
-    test_set_all = MNIST_SELECT(
+    test_set_all = MNIST_SELECT(data_root, 
         label_list=label_list, train=False, download=True, transform=transform, is_pair=True
     )
     subset_index = get_suffle_index(len(test_set_all))
