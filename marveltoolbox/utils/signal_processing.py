@@ -18,7 +18,9 @@ def fft_plot(x, samples=200, filename=None):
     
     elif isinstance(x, torch.Tensor):
         if x.shape[-1] == 2:
-            fft_x = torch.fft(x, signal_ndim=1, normalized=False)
+            x_c = torch.view_as_complex(x)
+            fft_x = torch.fft.fft(x_c)
+            fft_x = torch.view_as_real(fft_x)
             abs_x = TorchComplex.abs(fft_x/N).numpy()
             # angle_x = TorchComplex.phase(fft_x/N).numpy()
             angle_x = TorchComplex.phase_np(fft_x/N)

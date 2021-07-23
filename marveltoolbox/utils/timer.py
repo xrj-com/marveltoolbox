@@ -45,12 +45,13 @@ class Timer:
     def begin(self):
         self.time_begin = time.time()
         
-    def end(self):
+    def end(self, is_print=True):
         diff_time = time.time() - self.time_begin
         h, m, s = self._convert(diff_time)
         self.diff_time = diff_time
         self.record = 'Consume:[{:2d}h/{:2d}m/{:2d}s]\n'.format(h, m, s)
-        print(self.record)
+        if is_print:
+            print(self.record)
         
     def __str__(self):
         h, m, s = self._convert(self.diff_time)
