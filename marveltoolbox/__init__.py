@@ -9,4 +9,5 @@ from . import inn
 from . import datasets
 from . import attacks
 from .trainer import BaseTrainer
-from .configs import BaseConfs
+from .experiment import BaseExperiment
+from .configs import BaseConfs, BaseExpConfs

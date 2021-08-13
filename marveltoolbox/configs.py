@@ -36,7 +36,19 @@ class BaseConfs:
         return print_str
 
 
+class BaseExpConfs:
+    def __init__(self):
+        self.exp_flag = 'Exp_demo'
+        self.exp_path = './exps'
+        self.batch_size = 128
+        self.seed = 0
 
+    def __str__(self):
+        print_str = 'Configs: \n'
+        print_str += 'Exp flag:   {}\n'.format(self.exp_flag)
+        print_str += 'Exp path:   {}\n'.format(self.exp_path)
+        print_str += 'Seed:       {}\n'.format(self.seed)
+        return print_str
 
 
 if __name__ == '__main__':
