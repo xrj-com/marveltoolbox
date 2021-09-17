@@ -29,7 +29,7 @@ class BaseExperiment():
 
     
     def preprocessing(self):
-        kwargs = {'num_workers': 1, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
+        kwargs = {'num_workers': 0, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
         for key in self.datasets.keys():
             self.dataloaders[key] = torch.utils.data.DataLoader(
                 self.datasets[key], batch_size=self.batch_size, **kwargs)

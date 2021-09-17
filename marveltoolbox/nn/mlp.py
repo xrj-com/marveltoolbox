@@ -5,20 +5,26 @@ from .normalized_model import NormalizedModel
 
 
 class MLP(nn.Module):
-    def __init__(self, input_size=10, output_size=2, hidden_size=128):
+    def __init__(self, layers=[10, 1024, 512, 256, 10]):
         super().__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, hidden_size)
-        self.fc3 = nn.Linear(hidden_size, output_size)
-        
-        for m in self.modules():
-            if isinstance(m, nn.Linear):
-                nn.init.kaiming_normal_(m.weight)
-                nn.init.constant_(m.bias, 0.0)
+        self.main = nn.ModuleList()
+        self.layers = layers
+
+        for i in range(len(self.layers)-1):
+            self.main.append(
+                nn.Linear(self.layers[i], self.layers[i+1])
+                )
+            if i < (len(self.layers) - 2):
+                self.main.append(
+                    nn.Sequential(
+                        nn.BatchNorm1d(self.layers[i+1]),
+                        nn.ReLU()
+                    )
+                )
                 
     def forward(self, x):
-        x = F.leaky_relu(self.fc1(x), negative_slope=2e-1)
-        x = F.leaky_relu(self.fc2(x), negative_slope=2e-1)
-        x = F.leaky_relu(self.fc3(x), negative_slope=2e-1)
+        B = len(x)
+        x = x.flatten().view(B, -1)
+        for i in range(len(self.main)):
+            x = self.main[i](x)
         return x
-

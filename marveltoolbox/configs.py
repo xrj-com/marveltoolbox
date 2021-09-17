@@ -28,7 +28,7 @@ class BaseConfs:
                     
 
     def __str__(self):
-        print_str = 'Configs：\n'
+        print_str = 'Configs:\n'
         print_str += 'Flag:       {}\n'.format(self.flag)
         print_str += 'Batch size: {}\n'.format(self.batch_size)
         print_str += 'Epochs:     {}\n'.format(self.epochs)
