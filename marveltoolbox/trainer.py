@@ -49,6 +49,8 @@ class BaseTrainer():
         self.models = {}
         self.optims = {}
         self.datasets = {}
+        self.train_sets = {}
+        self.eval_sets = {}
         self.dataloaders = {}
         self.records = {}
         self.logs = {}
@@ -62,8 +64,6 @@ class BaseTrainer():
         if not os.path.exists(self.log_path):
             print(self.log_path, 'dose not exist')
             os.makedirs(self.log_path)
-            
-        utils.set_seed(self.seed)
 
     def set_logger(self):
         self.logger = logging.getLogger(__name__) 
@@ -76,11 +76,19 @@ class BaseTrainer():
         self.logger.addHandler(hfile)
 
     def preprocessing(self):
-        kwargs = {'num_workers': 0, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
+        kwargs = {'num_workers': 1, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
         for key in self.datasets.keys():
-            batch_size = min(self.batch_size, len(self.datasets[key]))
             self.dataloaders[key] = torch.utils.data.DataLoader(
-                self.datasets[key], batch_size=batch_size, shuffle=True, **kwargs)
+                self.datasets[key], batch_size=self.batch_size, shuffle=True, **kwargs)
+
+        for key in self.train_sets.keys():
+            self.dataloaders[key] = torch.utils.data.DataLoader(
+                self.train_sets[key], batch_size=self.batch_size, shuffle=True, **kwargs)
+
+        kwargs = {'num_workers': 1, 'drop_last': False, 'pin_memory': True} if torch.cuda.is_available() else {}
+        for key in self.eval_sets.keys():
+            self.dataloaders[key] = torch.utils.data.DataLoader(
+                self.eval_sets[key], batch_size=self.batch_size, shuffle=True, **kwargs)
         
     def train(self, epoch):
         return 0.0
@@ -103,6 +111,7 @@ class BaseTrainer():
             self.logger.info(print_str)
 
     def main(self, load_best=False, retrain=False, is_del_loger=True):
+        utils.set_seed(self.seed)
         self.set_logger()
         if not retrain:
             self.load()

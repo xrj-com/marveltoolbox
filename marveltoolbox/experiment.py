@@ -29,7 +29,7 @@ class BaseExperiment():
 
     
     def preprocessing(self):
-        kwargs = {'num_workers': 0, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
+        kwargs = {'num_workers': 0, 'drop_last': False, 'pin_memory': True} if torch.cuda.is_available() else {}
         for key in self.datasets.keys():
             self.dataloaders[key] = torch.utils.data.DataLoader(
                 self.datasets[key], batch_size=self.batch_size, **kwargs)
@@ -70,6 +70,10 @@ class BaseExperiment():
             self.set_logger()
             temp_results = self.load() 
             if kwargs['is_rerun'] or (temp_results is None):
+                self.main(*args, **kwargs)
+                self.save()
+            elif (not kwargs['is_rerun']) and kwargs['is_append']:
+                self.results.update(temp_results)
                 self.main(*args, **kwargs)
                 self.save()
             else:
