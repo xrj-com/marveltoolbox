@@ -4,6 +4,7 @@ from typing import Dict, Tuple
 from PIL import Image
 from random import shuffle
 import collections
+import os
 import torch
 import torchvision
 import torchvision.transforms as transforms
@@ -156,7 +157,7 @@ def load_svhn(data_root,
         ) 
     # Load training set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
-    train_valid_set = SVHN_SELECT(
+    train_valid_set = SVHN_SELECT(data_root,
         label_list=label_list, split='train', download=True, transform=transform
     )
 
@@ -183,7 +184,7 @@ def load_svhn(data_root,
     
     # Load test set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
-    test_set_all = SVHN_SELECT(
+    test_set_all = SVHN_SELECT(data_root,
         label_list=label_list, split='test', download=True, transform=transform
     )
     subset_index = get_suffle_index(len(test_set_all))
@@ -194,7 +195,7 @@ def load_svhn(data_root,
     print('testset len: {}'.format(len(test_set)))
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=4)
 
-    targeted_attack_test_set_all = SVHN_SELECT(
+    targeted_attack_test_set_all = SVHN_SELECT(data_root,
         label_list=label_list, split='test', download=True, transform=transform, is_target_attack=True
     )
     downsampled_num_test_examples = int(downsample_pct * len(test_set_all))

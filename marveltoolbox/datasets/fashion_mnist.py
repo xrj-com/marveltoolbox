@@ -155,7 +155,7 @@ is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader]:
         
     # Load training set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
-    train_valid_set = MNIST_SELECT(
+    train_valid_set = MNIST_SELECT(data_root,
         label_list=label_list, train=True, download=True, transform=transform
     )
 
@@ -180,7 +180,7 @@ is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader]:
 
     # Load test set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
-    test_set_all = MNIST_SELECT(
+    test_set_all = MNIST_SELECT(data_root,
         label_list=label_list, train=False, download=True, transform=transform
     )
     subset_index = get_suffle_index(len(test_set_all))
@@ -191,7 +191,7 @@ is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader]:
     )
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=4)
 
-    targeted_attack_test_set_all = MNIST_SELECT(
+    targeted_attack_test_set_all = MNIST_SELECT(data_root,
         label_list=label_list, train=False, download=True, transform=transform, is_target_attack=False
     )
     subset_index = get_suffle_index(len(targeted_attack_test_set_all))
