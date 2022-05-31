@@ -124,7 +124,7 @@ class SVHN_SELECT(SVHN):
 
         return img, target
 
-def load_svhn(
+def load_svhn(data_root,
     downsample_pct: float = 0.5, train_pct: float = 0.8, batch_size: int = 50, img_size: int = 32, label_list: list = None, is_norm=False
 ) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """

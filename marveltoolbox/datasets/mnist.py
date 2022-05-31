@@ -123,9 +123,9 @@ class MNIST_SELECT(MNIST):
 
     
 
-def load_mnist(
+def load_mnist(data_root,
     downsample_pct: float = 0.5, train_pct: float = 0.8, batch_size: int = 50, img_size: int = 28,  label_list: list = None, 
-is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
+is_norm: bool = False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
     """
     Load MNIST dataset (download if necessary) and split data into training,
         validation, and test sets.
@@ -155,7 +155,7 @@ is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
         ) 
     # Load training set
     # pyre-fixme[16]: Module `datasets` has no attribute `MNIST`.
-    train_valid_set = MNIST_SELECT(
+    train_valid_set = MNIST_SELECT(data_root=data_root,
         label_list=label_list, train=True, download=True, transform=transform
     )
 

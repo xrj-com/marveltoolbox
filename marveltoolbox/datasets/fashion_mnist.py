@@ -124,9 +124,9 @@ class MNIST_SELECT(FashionMNIST):
 
     
 
-def load_fmnist(
+def load_fmnist(data_root,
     downsample_pct: float = 0.5, train_pct: float = 0.8, batch_size: int = 50, img_size: int = 28, label_list: list = None, 
-is_norm=False, data_root='./DATASET') -> Tuple[DataLoader, DataLoader, DataLoader]:
+is_norm=False) -> Tuple[DataLoader, DataLoader, DataLoader]:
     """
     Load MNIST dataset (download if necessary) and split data into training,
         validation, and test sets.
