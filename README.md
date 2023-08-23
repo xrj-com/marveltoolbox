@@ -1,5 +1,5 @@
 # marveltoolbox
-A marvelous toolbox for DL research!
+A marvelous toolbox for DL/DL-based communication research!
 
 ## Features
 - [x] Complex value matrix computition APIs；
@@ -71,7 +71,7 @@ class Trainer(mt.BaseTrainer):
             self.optims['C'].zero_grad()
             loss.backward()
             self.optims['C'].step()
-            if i % 100 == 0:
+            if i % 100 == 0:.
                 self.logs['Train Loss'] = loss.item()
                 self.print_logs(epoch, i)
         return loss.item()

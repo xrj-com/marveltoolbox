@@ -108,7 +108,7 @@ def fetch_dataloader(args, train=True, data_dependent_init=False):
         sampler = None
 
     batch_size = args.batch_size_init if data_dependent_init else args.batch_size  # if data dependent init use init batch size
-    kwargs = {'num_workers': 1, 'pin_memory': True} if args.device.type is 'cuda' else {}
+    kwargs = {'num_workers': 1, 'pin_memory': True} if args.device.type == 'cuda' else {}
     return DataLoader(dataset, batch_size=batch_size, shuffle=(sampler is None), drop_last=True, sampler=sampler, **kwargs)
 
 

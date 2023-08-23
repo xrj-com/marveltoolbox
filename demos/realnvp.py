@@ -1,6 +1,5 @@
 import sys
-sys.path.append('..')
-import mytoolbox as mt 
+import marveltoolbox as mt
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
