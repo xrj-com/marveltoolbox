@@ -11,13 +11,15 @@ class Timer:
     
     def step(self, interval=1):
         self.step_now += interval
-        remain_time = self._remain_time()
+        remain_time, per_step_time = self._remain_time()
         h, m, s = self._convert(remain_time)
         print_str = 'step: {:0>3d}/{:0>3d} {:.0f}% ' \
-                    '[Remain:{:2d}h/{:2d}m/{:2d}s]\n'.format(
+                    '[Remain:{:2d}h/{:2d}m/{:2d}s | {:.2f}s/step]\n'.format(
                         self.step_now, 
                         self.steps, 
-                        self.step_now*100/self.steps,h,m,s)
+                        self.step_now*100/self.steps,
+                        h,m,s,
+                        per_step_time,)
         print(print_str)
         if self.logger is not None:
             self.logger.info(print_str)
@@ -33,8 +35,9 @@ class Timer:
         self.time_now = time.time() 
         time_consume = (self.time_now-self.time_begin)
         remain_steps = self.steps - self.step_now
-        remain_time = remain_steps * time_consume/self.step_now
-        return remain_time
+        per_step_time = time_consume/self.step_now
+        remain_time = remain_steps * per_step_time
+        return remain_time, per_step_time
         
         
     def _convert(self, diff_time):

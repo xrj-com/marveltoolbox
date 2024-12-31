@@ -27,7 +27,7 @@ def load_checkpoint(is_best, file_path='./', flag=''):
 
     if os.path.isfile(chkpt_file):
         print("=> loading checkpoint '{}'".format(chkpt_file))
-        checkpoint = torch.load(chkpt_file, lambda storage, loc: storage)
+        checkpoint = torch.load(chkpt_file, lambda storage, loc: storage, weights_only=False)
     else:
         print("=> no checkpoint found at '{}'".format(chkpt_file))
     return checkpoint

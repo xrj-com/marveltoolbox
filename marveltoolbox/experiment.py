@@ -98,7 +98,7 @@ class BaseExperiment():
         result_file = os.path.join(self.exp_path, 'Exp_{}.pth.tar'.format(self.save_flag))
         if os.path.isfile(result_file):
             print("=> loading results '{}'".format(result_file))
-            results = torch.load(result_file)
+            results = torch.load(result_file, weights_only=False)
         else:
             print("=> no results found at '{}'".format(result_file))
         return results
