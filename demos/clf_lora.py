@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
+
 class Confs(mt.BaseConfs):
     def __init__(self):
         super().__init__()
@@ -17,7 +18,7 @@ class Confs(mt.BaseConfs):
         self.seed = 0
 
     def get_flag(self):
-        self.flag = 'demo-{}-clf'.format(self.dataset)
+        self.flag = 'demo-{}-clf-lora'.format(self.dataset)
 
     def get_device(self):
         self.device_ids = [0]
@@ -31,10 +32,10 @@ class Trainer(mt.BaseTrainer, Confs):
     def __init__(self):
         Confs.__init__(self)
         mt.BaseTrainer.__init__(self, self)
-
-        self.models['C'] = mt.nn.dcgan.Enet32(self.nc, self.nz).to(self.device)
+        
+        self.models['C'] = mt.utils.inject_lora(mt.nn.dcgan.Enet32(self.nc, self.nz), r=2, alpha=1).to(self.device)
         self.optims['C'] = torch.optim.Adam(
-            self.models['C'].parameters(), lr=1e-4, betas=(0.5, 0.99))
+            mt.utils.get_lora_parameters(self.models['C']), lr=1e-4, betas=(0.5, 0.99))
         
         self.train_loader, self.val_loader, self.test_loader, _ = \
             mt.datasets.load_data(self.dataset, 1.0, 0.8, self.batch_size, 32, None, False)

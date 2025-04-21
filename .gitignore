@@ -134,6 +134,7 @@ logs/
 demos/chkpts/
 demos/logs/
 demos/temp/
+demos/DATASET/
 test/chkpts/
 test/logs/
 test/temp/
