@@ -52,4 +52,4 @@ class BaseExpConfs:
 
 
 if __name__ == '__main__':
-    args = Args()
+    pass

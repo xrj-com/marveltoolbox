@@ -118,7 +118,9 @@ class BaseTrainer():
         timer = utils.Timer(self.epochs-self.start_epoch, self.logger)
         timer.init()
         for epoch in range(self.start_epoch, self.epochs):
+            timer.step_begin()
             loss = self.train(epoch)
+            timer.step_end()
             is_best = self.eval(epoch)
             timer.step()
             self.save(is_best=is_best)
