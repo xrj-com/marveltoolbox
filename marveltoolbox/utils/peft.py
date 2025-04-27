@@ -132,6 +132,7 @@ def inject_lora(model: nn.Module,
                 lora_state_dict: dict | None = None,
                 strict: bool = True) -> nn.Module:
     """Inject LoRA into a model."""
+    device = next(model.parameters()).device
     injected = copy.deepcopy(model)             
     _inject_inplace(injected,
                     target_replace_modules,
@@ -139,7 +140,7 @@ def inject_lora(model: nn.Module,
                     lora_state_dict,
                     prefix="",
                     strict=strict)              
-    return injected
+    return injected.to(device)
 
 def _inject_inplace(module: nn.Module,
                     target_replace_modules,
@@ -184,9 +185,10 @@ def _load_lora_weights(lora_module, state_dict, full_name, strict):
             raise RuntimeError(f"Missing LoRA weights for {full_name}: {e}")
 
 def merge_lora_weights(model: nn.Module) -> nn.Module:
+    device = next(model.parameters()).device
     merged = copy.deepcopy(model)        
     _merge_inplace(merged)               
-    return merged
+    return merged.to(device)
 
 def _merge_inplace(module: nn.Module):
     for name, child in module.named_children():
