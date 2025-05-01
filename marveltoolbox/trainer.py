@@ -44,6 +44,7 @@ class BaseTrainer():
         self.epochs = confs.epochs
         self.seed = confs.seed
         self.device_ids = confs.device_ids
+        self.dataloader_num_workers = 4
         self.start_epoch = 0
         self.schedulers = {}
         self.models = {}
@@ -76,7 +77,7 @@ class BaseTrainer():
         self.logger.addHandler(hfile)
 
     def preprocessing(self):
-        kwargs = {'num_workers': 1, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
+        kwargs = {'num_workers': self.dataloader_num_workers, 'drop_last': True, 'pin_memory': True} if torch.cuda.is_available() else {}
         for key in self.datasets.keys():
             self.dataloaders[key] = torch.utils.data.DataLoader(
                 self.datasets[key], batch_size=self.batch_size, shuffle=True, **kwargs)
@@ -85,7 +86,7 @@ class BaseTrainer():
             self.dataloaders[key] = torch.utils.data.DataLoader(
                 self.train_sets[key], batch_size=self.batch_size, shuffle=True, **kwargs)
 
-        kwargs = {'num_workers': 1, 'drop_last': False, 'pin_memory': True} if torch.cuda.is_available() else {}
+        kwargs = {'num_workers': self.dataloader_num_workers, 'drop_last': False, 'pin_memory': True} if torch.cuda.is_available() else {}
         for key in self.eval_sets.keys():
             self.dataloaders[key] = torch.utils.data.DataLoader(
                 self.eval_sets[key], batch_size=self.batch_size, shuffle=True, **kwargs)
@@ -115,14 +116,12 @@ class BaseTrainer():
         self.set_logger()
         if not retrain:
             self.load()
-        timer = utils.Timer(self.epochs-self.start_epoch, self.logger)
-        timer.init()
+        self.timer = utils.Timer(self.epochs-self.start_epoch, self.logger)
+        self.timer.init()
         for epoch in range(self.start_epoch, self.epochs):
-            timer.step_begin()
             loss = self.train(epoch)
-            timer.step_end()
             is_best = self.eval(epoch)
-            timer.step()
+            self.timer.step()
             self.save(is_best=is_best)
             self.start_epoch += 1
             self.scheduler_step()

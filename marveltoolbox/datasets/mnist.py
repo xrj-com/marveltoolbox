@@ -125,7 +125,7 @@ class MNIST_SELECT(MNIST):
 
 def load_mnist(data_root,
     downsample_pct: float = 0.5, train_pct: float = 0.8, batch_size: int = 50, img_size: int = 28,  label_list: list = None, 
-is_norm: bool = False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
+is_norm: bool = False, num_workers=4) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
     """
     Load MNIST dataset (download if necessary) and split data into training,
         validation, and test sets.
@@ -172,9 +172,9 @@ is_norm: bool = False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
             len(train_valid_set) - downsampled_num_examples,
         ],
     )
-    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=1)
+    train_loader = DataLoader(train_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
     if train_pct < 1.0:
-        valid_loader = DataLoader(valid_set, batch_size=batch_size, shuffle=True, num_workers=1)
+        valid_loader = DataLoader(valid_set, batch_size=batch_size, shuffle=True, num_workers=num_workers, pin_memory=True)
     else:
         valid_loader = None
 
@@ -189,7 +189,7 @@ is_norm: bool = False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
     test_set = torch.utils.data.Subset(
         test_set_all, indices=subset_index[0:downsampled_num_test_examples]
     )
-    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=1)
+    test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, num_workers=num_workers, pin_memory=True)
 
 
     targeted_attack_test_set_all = MNIST_SELECT(data_root,
@@ -201,7 +201,7 @@ is_norm: bool = False) -> Tuple[DataLoader, DataLoader, DataLoader, DataLoader]:
     targeted_test_set = torch.utils.data.Subset(
         targeted_attack_test_set_all, indices=subset_index[0:downsampled_num_test_examples]
     )
-    targeted_test_loader = DataLoader(targeted_test_set, batch_size=batch_size, shuffle=False, num_workers=1)
+    targeted_test_loader = DataLoader(targeted_test_set, batch_size=batch_size, shuffle=False, num_workers=num_workers)
 
     return train_loader, valid_loader, test_loader, targeted_test_loader
 
