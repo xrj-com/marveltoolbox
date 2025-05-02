@@ -16,13 +16,13 @@ class Timer:
         self.step_now += interval
         remain_time, per_step_time = self._remain_time()
         h, m, s = self._convert(remain_time)
-        eval_str = ' | {'
+        eval_str = '{'
         if self.eval_total_dict:
             for key, value in self.eval_total_dict.items():
-                eval_str +=  '{}: {:.2f}s | '.format(key, value/self.step_now) 
-            eval_str = eval_str[:-1] + '}/Epoch'
+                eval_str +=  ' {}: {:.2f}s |'.format(key, value/self.step_now) 
+            eval_str = eval_str[:-1] + '}'
         print_str = 'Epoch: {:0>3d}/{:0>3d} {:.0f}% ' \
-                    '[Remain:{:2d}h/{:2d}m/{:2d}s | Avg: {:.2f}s/Epoch{}]\n'.format(
+                    '[Remain:{:2d}h/{:2d}m/{:2d}s | Avg: {:.2f}s{}/Epoch]\n'.format(
                         self.step_now, 
                         self.steps, 
                         self.step_now*100/self.steps,
